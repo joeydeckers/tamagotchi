@@ -65,6 +65,24 @@ class BookingController extends Controller
         ], 200);
     }
 
+    public function nightTime(){
+        $tamagotchis = Tamagotchi::all();
+        foreach($tamagotchis as $tamagotchi){
+            if($tamagotchi['in_hotel']){
+                $tamagotchi->level++;
+                if($tamagotchi->boredom >=70){
+                    $tamagotchi->health = $tamagotchi->health -20;
+                }
+                if($tamagotchi->health <= 0){
+                    $tamagotchi->dead = 1;
+                }
+                $tamagotchi->save();
+            }else{
+
+            }
+        }
+    }
+
     /**
      * Store a newly created resource in storage.
      *

@@ -20,9 +20,11 @@ class CreateTamagotchisTable extends Migration
             $table->integer("coins");
             $table->integer("health");
             $table->integer("boredom");
+            $table->integer("level");
             $table->integer("owner_id");
             $table->integer("hotel_room_id")->nullable();
             $table->boolean("dead");
+            $table->boolean("in_hotel");
             $table->timestamps();
         });
     }
