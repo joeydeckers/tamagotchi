@@ -40,6 +40,12 @@ class BookingController extends Controller
             ], 400);
         }
 
+        if($hotel_room['booked'] == 1){
+            return response()->json([
+                'error' => 'Room fully booked!'
+            ], 400);
+        }
+
         $count = count($tamagotchi_ids_filterd);
 
         if($hotel_room['size'] < $count || $hotel_room['tamagotchi_count'] == $hotel_room['size']){
@@ -80,8 +86,8 @@ class BookingController extends Controller
             $this->specificNightTime($tamagotchi);
             if($tamagotchi['in_hotel']){
                 $tamagotchi->level++;
-                if($tamagotchi->boredom <= 70){
-                    $tamagotchi->health = $tamagotchi->health -20;
+                if($tamagotchi->boredom >= 70){
+                    $tamagotchi['health'] = $tamagotchi->health -20;
                 }
                 if($tamagotchi->health <= 0){
                     $tamagotchi->dead = 1;
@@ -132,7 +138,7 @@ class BookingController extends Controller
                 $winner['level'] = $winner["level"] + 1;
                 $winner->save();
 
-                $losers = Tamagotchi::where('id', '!=', $winner["id"])->get();
+                $losers = Tamagotchi::where('id', '!=', $winner["id"])->where('hotel_room_id', $fightingRoom['id'])->get();
 
                 foreach ($losers as $loser){
                     $loser['coins'] = $loser["coins"] - 20;

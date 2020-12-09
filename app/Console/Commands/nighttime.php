@@ -70,7 +70,7 @@ class nighttime extends Command
                 $winner['level'] = $winner["level"] + 1;
                 $winner->save();
 
-                $losers = Tamagotchi::where('id', '!=', $winner["id"])->get();
+                $losers = Tamagotchi::where('id', '!=', $winner["id"])->where('hotel_room_id', $fightingRoom['id'])->get();
 
                 foreach ($losers as $loser){
                     $loser['coins'] = $loser["coins"] - 20;
@@ -94,7 +94,7 @@ class nighttime extends Command
             $this->specificNightTime($tamagotchi);
             if($tamagotchi['in_hotel'] == 1){
                 $tamagotchi->level++;
-                if($tamagotchi->boredom <= 70){
+                if($tamagotchi->boredom >= 70){
                     $tamagotchi['health'] =  -20;
                 }
                 if($tamagotchi->health <= 0){
