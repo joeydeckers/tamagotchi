@@ -34,3 +34,6 @@ Route::prefix('/hotelroom')->group(function(){
 Route::prefix('/booking')->group(function(){
     Route::post('/create', 'App\Http\Controllers\BookingController@create');
 });
+
+Route::post('/register', 'App\Http\Controllers\AuthController@register');
+Route::post('/login', 'App\Http\Controllers\AuthController@login');
