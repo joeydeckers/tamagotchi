@@ -26,6 +26,7 @@ class TamagotchiController extends Controller
      */
     public function create(Request $request)
     {
+
         return Tamagotchi::create([
             'name' => $request['name'],
             'age' => $request['age'],
@@ -33,7 +34,7 @@ class TamagotchiController extends Controller
             'health' => 100,
             'boredom' => 0,
             'dead' => $request['dead'],
-            'owner_id' => $request['owner_id'],
+            'owner_id' => $user = auth()->guard('api')->user()->id,
             'level' => 1,
             'in_hotel' => 0
         ], 200);

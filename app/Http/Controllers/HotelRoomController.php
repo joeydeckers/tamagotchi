@@ -14,9 +14,10 @@ class HotelRoomController extends Controller
      * @param Request $request
      * @return \Illuminate\Support\Collection
      */
-    public function index($id)
+    public function index()
     {
-        return DB::table('hotel_rooms')->where('owner_id', $id)->get();
+//        return DB::table('hotel_rooms')->where('owner_id', $id)->get();
+        return HotelRoom::all();
     }
 
     /**
