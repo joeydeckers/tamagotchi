@@ -27,7 +27,7 @@ class TamagotchiController extends Controller
         return Tamagotchi::create([
             'name' => $request['name'],
             'age' => $request['age'],
-            'coins' => 0,
+            'coins' => 100,
             'health' => 100,
             'boredom' => 0,
             'dead' => $request['dead'],

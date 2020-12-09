@@ -69,6 +69,7 @@ class BookingController extends Controller
     public function nightTime(){
         $tamagotchis = Tamagotchi::all();
         foreach($tamagotchis as $tamagotchi){
+            $this->specificNightTime($tamagotchi);
             if($tamagotchi['in_hotel']){
                 $tamagotchi->level++;
                 if($tamagotchi->boredom >=70){
@@ -81,9 +82,33 @@ class BookingController extends Controller
             }else{
                 $tamagotchi->health = $tamagotchi->health -20;
                 $tamagotchi->boredom = $tamagotchi->boredom + 20;
+                if($tamagotchi->health <= 0){
+                    $tamagotchi->dead = 1;
+                }
                 $tamagotchi->save();
             }
         }
+    }
+
+    public function specificNightTime(Tamagotchi $tamagotchi){
+        $tamagotchiRoom = HotelRoom::find($tamagotchi['hotel_room_id']);
+
+        switch( $tamagotchiRoom['type']){
+            case 'relax':
+                $tamagotchi["coins"] = $tamagotchi["coins"] -10;
+                $tamagotchi["health"] = $tamagotchi["health"] +20;
+                $tamagotchi["boredom"] = $tamagotchi["boredom"] -10;
+                break;
+            case 'game':
+                $tamagotchi["coins"] = $tamagotchi["coins"] -20;
+                $tamagotchi["boredom"] = 0;
+                break;
+            case 'working':
+                $tamagotchi["coins"] = $tamagotchi["coins"] + random_int(10, 60);
+                $tamagotchi["boredom"] = $tamagotchi["boredom"] +20;
+                break;
+        }
+        $tamagotchi->save();
     }
 
     /**

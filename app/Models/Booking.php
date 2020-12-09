@@ -13,4 +13,8 @@ class Booking extends Model
         'room_id',
         'tamagotchi_id'
     ];
+
+    public function hotelRoom(){
+        return $this->hasOne('App\Models\HotelRoom');
+    }
 }
