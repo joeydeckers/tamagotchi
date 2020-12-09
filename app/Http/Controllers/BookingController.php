@@ -53,7 +53,7 @@ class BookingController extends Controller
              Booking::create([
                 'room_id' => $hotel_room['id'],
                 'tamagotchi_id' => $tamagotchi['id'],
-            ], 200);
+            ]);
 
             if($hotel_room['tamagotchi_count'] == $hotel_room['size']){
                 $hotel_room->booked = 1;
@@ -61,6 +61,7 @@ class BookingController extends Controller
             }
         }
         $this->nightTime();
+        $this->tamagotchisFighting();
         return response()->json([
             'message' => 'Booking created successfully!'
         ], 200);
@@ -72,7 +73,7 @@ class BookingController extends Controller
             $this->specificNightTime($tamagotchi);
             if($tamagotchi['in_hotel']){
                 $tamagotchi->level++;
-                if($tamagotchi->boredom >=70){
+                if($tamagotchi->boredom >= 70){
                     $tamagotchi->health = $tamagotchi->health -20;
                 }
                 if($tamagotchi->health <= 0){
@@ -93,7 +94,7 @@ class BookingController extends Controller
     public function specificNightTime(Tamagotchi $tamagotchi){
         $tamagotchiRoom = HotelRoom::find($tamagotchi['hotel_room_id']);
 
-        switch( $tamagotchiRoom['type']){
+        switch($tamagotchiRoom['type']){
             case 'relax':
                 $tamagotchi["coins"] = $tamagotchi["coins"] -10;
                 $tamagotchi["health"] = $tamagotchi["health"] +20;
@@ -109,6 +110,31 @@ class BookingController extends Controller
                 break;
         }
         $tamagotchi->save();
+    }
+
+    public function tamagotchisFighting(){
+        $allFightingRooms = HotelRoom::where('type', 'fighting')->get();
+        $winnerId = 0;
+
+        foreach ($allFightingRooms as $fightingRoom){
+            $tamagotchisInRoom = Tamagotchi::where('hotel_room_id', $fightingRoom['id']);
+            if($tamagotchisInRoom->count() >= 2){
+                $winner = $tamagotchisInRoom->inRandomOrder()->first();
+                $winnerId = $winner['id'];
+                $winner['coins'] = $winner["coins"] + 20;
+                $winner['level'] = $winner["level"] + 1;
+                $winner->save();
+
+                $losers = Tamagotchi::where('id', '!=', $winner["id"])->get();
+
+                foreach ($losers as $loser){
+                    $loser['coins'] = $loser["coins"] - 20;
+                    $loser['health'] = $loser["health"] - 30;
+                    $loser->save();
+                }
+            }
+
+        }
     }
 
     /**
