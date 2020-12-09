@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\HotelRoom;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 class HotelRoomController extends Controller
 {
@@ -16,7 +17,6 @@ class HotelRoomController extends Controller
      */
     public function index()
     {
-//        return DB::table('hotel_rooms')->where('owner_id', $id)->get();
         return HotelRoom::all();
     }
 
@@ -28,33 +28,30 @@ class HotelRoomController extends Controller
      */
     public function create(Request $request)
     {
+        $user = auth()->guard('api')->user();
+
+        if($user->isAdmin != 1){
+            return response()->json([
+                'error' => 'you are not admin!',
+            ], 400);
+        }
+
+        $rules = [
+            'size' => 'required',
+            'type' => 'required',
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
+
+        if($validator->fails()){
+            return response()->json($validator->errors(), 400);
+        }
+
         return HotelRoom::create([
             'size' => $request['size'],
             'type' => $request['type'],
-            'owner_id' => $request['owner_id'],
+            'owner_id' => $user = auth()->guard('api')->user()->id,
         ], 200);
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
     }
 
     /**
@@ -66,42 +63,59 @@ class HotelRoomController extends Controller
      */
     public function edit(Request $request, $id)
     {
-        $hotel_room = HotelRoom::findOrFail($id);
 
-        if($hotel_room['owner_id'] != $request['owner_id']){
+        $hotel_room = HotelRoom::find($id);
+
+        if(is_null($hotel_room)){
+            return response()->json([
+                'error' => 'Room not found!'
+            ], 400);
+        }
+
+        $user = auth()->guard('api')->user();
+
+       if($user->isAdmin != 1){
+           return response()->json([
+               'error' => 'you are not admin!',
+           ], 400);
+       }
+
+        if($hotel_room['owner_id'] != $user->id){
             return response()->json([
                 'error' => 'you are not the owner',
             ], 400);
         }
         $hotel_room->update($request->all());
         return $hotel_room;
-
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param Request $request
      * @param int $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function destroy(request $request, $id)
+    public function destroy(int $id)
     {
-        $hotel_room = HotelRoom::findOrFail($id);
+        $user = auth()->guard('api')->user();
 
-        if($hotel_room['owner_id'] != $request['owner_id']){
+        if($user->isAdmin != 1){
+            return response()->json([
+                'error' => 'you are not admin!',
+            ], 400);
+        }
+
+        $user = auth()->guard('api')->user();
+
+        $hotel_room = HotelRoom::find($id);
+
+        if(is_null($hotel_room)){
+            return response()->json([
+                'error' => 'Room not found!'
+            ], 400);
+        }
+
+        if($hotel_room['owner_id'] != $user->id){
             return response()->json([
                 'error' => 'you are not the owner',
             ], 400);

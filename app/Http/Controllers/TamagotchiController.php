@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Tamagotchi;
+use Illuminate\Support\Facades\Validator;
 
 class TamagotchiController extends Controller
 {
@@ -27,63 +28,30 @@ class TamagotchiController extends Controller
     public function create(Request $request)
     {
 
+        $rules = [
+            'name' => 'required',
+            'age' => 'required',
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
+
+        if($validator->fails()){
+            return response()->json($validator->errors(), 400);
+        }
+
         return Tamagotchi::create([
             'name' => $request['name'],
             'age' => $request['age'],
             'coins' => 100,
             'health' => 100,
             'boredom' => 0,
-            'dead' => $request['dead'],
+            'dead' => 0,
             'owner_id' => $user = auth()->guard('api')->user()->id,
             'level' => 1,
             'in_hotel' => 0
         ], 200);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
 
     /**
      * Remove the specified resource from storage.
@@ -91,11 +59,17 @@ class TamagotchiController extends Controller
      * @param  int  $id
      * @return string
      */
-    public function destroy(Request $request, $id)
+    public function destroy($id)
     {
         $user = auth()->guard('api')->user();
 
-        $tamagotchi = Tamagotchi::findOrFail($id);
+        $tamagotchi = Tamagotchi::find($id);
+
+        if(is_null($tamagotchi)){
+            return response()->json([
+                'error' => 'Tamagotchi not found!'
+            ], 400);
+        }
 
         if($tamagotchi['owner_id'] != $user->id){
             return response()->json([
