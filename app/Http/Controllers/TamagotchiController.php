@@ -14,7 +14,9 @@ class TamagotchiController extends Controller
      */
     public function index()
     {
-        return Tamagotchi::all();
+        $user = auth()->guard('api')->user();
+
+        return Tamagotchi::where('owner_id', $user->id)->get();
     }
 
     /**
@@ -90,9 +92,11 @@ class TamagotchiController extends Controller
      */
     public function destroy(Request $request, $id)
     {
+        $user = auth()->guard('api')->user();
+
         $tamagotchi = Tamagotchi::findOrFail($id);
 
-        if($tamagotchi['owner_id'] != $request['owner_id']){
+        if($tamagotchi['owner_id'] != $user->id){
             return response()->json([
                 'error' => 'you are not the owner',
             ], 400);
