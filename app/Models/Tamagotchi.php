@@ -16,6 +16,8 @@ class Tamagotchi extends Model
         'health',
         'boredom',
         'dead',
-        'owner_id'
+        'owner_id',
+        'level',
+        'in_hotel'
     ];
 }

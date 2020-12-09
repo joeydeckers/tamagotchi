@@ -47,6 +47,7 @@ class BookingController extends Controller
             $hotel_room->tamagotchi_count++;
             $hotel_room->save();
             $tamagotchi->hotel_room_id = $hotel_room['id'];
+            $tamagotchi->in_hotel = 1;
             $tamagotchi->save();
 
              Booking::create([
@@ -59,7 +60,7 @@ class BookingController extends Controller
                 $hotel_room->save();
             }
         }
-
+        $this->nightTime();
         return response()->json([
             'message' => 'Booking created successfully!'
         ], 200);
@@ -78,7 +79,9 @@ class BookingController extends Controller
                 }
                 $tamagotchi->save();
             }else{
-
+                $tamagotchi->health = $tamagotchi->health -20;
+                $tamagotchi->boredom = $tamagotchi->boredom + 20;
+                $tamagotchi->save();
             }
         }
     }
