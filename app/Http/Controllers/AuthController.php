@@ -48,7 +48,7 @@ class AuthController extends Controller
         }
         else{
             return response()->json([
-                'Unauthorised.', ['error'=>'Unauthorised']
+                'Error.', ['error'=>'Error']
             ]);
         }
     }
