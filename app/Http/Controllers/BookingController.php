@@ -80,7 +80,7 @@ class BookingController extends Controller
             $this->specificNightTime($tamagotchi);
             if($tamagotchi['in_hotel']){
                 $tamagotchi->level++;
-                if($tamagotchi->boredom >= 70){
+                if($tamagotchi->boredom <= 70){
                     $tamagotchi->health = $tamagotchi->health -20;
                 }
                 if($tamagotchi->health <= 0){
@@ -105,7 +105,7 @@ class BookingController extends Controller
             case 'relax':
                 $tamagotchi["coins"] = $tamagotchi["coins"] -10;
                 $tamagotchi["health"] = $tamagotchi["health"] +20;
-                $tamagotchi["boredom"] = $tamagotchi["boredom"] -10;
+                $tamagotchi["boredom"] = $tamagotchi["boredom"] +10;
                 break;
             case 'game':
                 $tamagotchi["coins"] = $tamagotchi["coins"] -20;

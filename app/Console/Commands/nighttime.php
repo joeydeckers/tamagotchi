@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\HotelRoom;
 use App\Models\Tamagotchi;
 use Illuminate\Console\Command;
+use function GuzzleHttp\Promise\all;
 
 class nighttime extends Command
 {
@@ -32,25 +33,28 @@ class nighttime extends Command
         parent::__construct();
     }
 
-    public function specificNightTime(Tamagotchi $tamagotchi){
-        $tamagotchiRoom = HotelRoom::find($tamagotchi['hotel_room_id']);
+    public function specificNightTime(){
+        $tamagotchis = Tamagotchi::all();
+        foreach ($tamagotchis as $tamagotchi) {
+            $tamagotchiRoom = HotelRoom::find($tamagotchi['hotel_room_id']);
 
-        switch($tamagotchiRoom['type']){
-            case 'relax':
-                $tamagotchi["coins"] = $tamagotchi["coins"] -10;
-                $tamagotchi["health"] = $tamagotchi["health"] +20;
-                $tamagotchi["boredom"] = $tamagotchi["boredom"] -10;
-                break;
-            case 'game':
-                $tamagotchi["coins"] = $tamagotchi["coins"] -20;
-                $tamagotchi["boredom"] = 0;
-                break;
-            case 'working':
-                $tamagotchi["coins"] = $tamagotchi["coins"] + random_int(10, 60);
-                $tamagotchi["boredom"] = $tamagotchi["boredom"] +20;
-                break;
+            switch ($tamagotchiRoom['type']) {
+                case 'relax':
+                    $tamagotchi["coins"] = $tamagotchi["coins"] - 10;
+                    $tamagotchi["health"] += 20;
+                    $tamagotchi["boredom"] = $tamagotchi["boredom"] + 10;
+                    break;
+                case 'game':
+                    $tamagotchi["coins"] = $tamagotchi["coins"] - 20;
+                    $tamagotchi["boredom"] = 0;
+                    break;
+                case 'working':
+                    $tamagotchi["coins"] = $tamagotchi["coins"] + random_int(10, 60);
+                    $tamagotchi["boredom"] = $tamagotchi["boredom"] + 20;
+                    break;
+            }
+            $tamagotchi->save();
         }
-        $tamagotchi->save();
     }
 
     public function tamagotchisFighting(){
@@ -88,17 +92,17 @@ class nighttime extends Command
         $tamagotchis = Tamagotchi::all();
         foreach($tamagotchis as $tamagotchi){
             $this->specificNightTime($tamagotchi);
-            if($tamagotchi['in_hotel']){
+            if($tamagotchi['in_hotel'] == 1){
                 $tamagotchi->level++;
-                if($tamagotchi->boredom >= 70){
-                    $tamagotchi->health = $tamagotchi->health -20;
+                if($tamagotchi->boredom <= 70){
+                    $tamagotchi['health'] =  -20;
                 }
                 if($tamagotchi->health <= 0){
                     $tamagotchi->dead = 1;
                 }
                 $tamagotchi->save();
             }else{
-                $tamagotchi->health = $tamagotchi->health -20;
+                $tamagotchi->health  -= 20;
                 $tamagotchi->boredom = $tamagotchi->boredom + 20;
                 if($tamagotchi->health <= 0){
                     $tamagotchi->dead = 1;
@@ -106,6 +110,7 @@ class nighttime extends Command
                 $tamagotchi->save();
             }
         }
+        $this->specificNightTime();
         $this->tamagotchisFighting();
         return "Nighttime!!!";
     }
